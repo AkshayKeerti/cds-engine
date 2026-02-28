@@ -163,6 +163,16 @@ export const store = {
     const idx = alerts.findIndex((a) => a.id === id);
     if (idx !== -1) alerts[idx] = { ...alerts[idx], ...updates };
   },
+  deactivateContextAlerts: (patientId: string, drugPairJson?: string) => {
+    ensureSeeded();
+    for (let i = 0; i < alerts.length; i++) {
+      if (alerts[i].patientId === patientId && alerts[i].alertType === 'context_aware' && alerts[i].status === 'active') {
+        if (!drugPairJson || alerts[i].drugPair === drugPairJson) {
+          alerts[i] = { ...alerts[i], status: 'superseded' };
+        }
+      }
+    }
+  },
 
   getAuditLogs: (patientId?: string) => { ensureSeeded(); return patientId ? auditLogs.filter((l) => l.patientId === patientId) : auditLogs; },
   insertAuditLog: (log: DbAuditLog) => { ensureSeeded(); auditLogs.push(log); },

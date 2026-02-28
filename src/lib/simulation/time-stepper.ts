@@ -72,6 +72,12 @@ export async function advanceSimulation(targetHour: number) {
         creatinineLabs
       );
 
+      // Deactivate old context-aware alerts for this drug pair before creating new ones
+      const drugPairJson = JSON.stringify([pair.drugA, pair.drugB]);
+      const drugPairJsonReverse = JSON.stringify([pair.drugB, pair.drugA]);
+      store.deactivateContextAlerts(patient.id, drugPairJson);
+      store.deactivateContextAlerts(patient.id, drugPairJsonReverse);
+
       // Create context-aware alert if threshold met
       const contextAlert = createContextAwareAlert(patient.id, riskScore, pair, targetHour);
       if (contextAlert) {

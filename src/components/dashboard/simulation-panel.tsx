@@ -2,7 +2,6 @@
 
 import { useSimulation, getScenarioHours } from '@/hooks/use-simulation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { useEffect, useRef, useCallback } from 'react';
 
 export function SimulationPanel({ onStepComplete }: { onStepComplete?: () => void }) {
@@ -41,63 +40,76 @@ export function SimulationPanel({ onStepComplete }: { onStepComplete?: () => voi
   const progress = hours.indexOf(currentHour);
 
   return (
-    <Card className="border-primary/20 bg-card/80">
-      <CardContent className="py-4">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Simulation</span>
-            <span className="text-lg font-bold text-primary tabular-nums">
-              Hour {currentHour}
-            </span>
-          </div>
+    <div className="flex items-center gap-4 px-4 py-2.5 bg-white border border-border rounded-lg">
+      <div className="flex items-center gap-2">
+        <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-widest">Time</span>
+        <span className="text-lg font-semibold vitals text-foreground">
+          {currentHour}h
+        </span>
+      </div>
 
-          {/* Timeline dots */}
-          <div className="flex items-center gap-1 flex-1">
-            {hours.map((h, i) => (
-              <div key={h} className="flex items-center">
+      <div className="h-5 w-px bg-border" />
+
+      {/* Timeline track */}
+      <div className="flex items-center gap-0.5 flex-1">
+        {hours.map((h, i) => {
+          const isActive = i <= progress;
+          const isCurrent = i === progress;
+          return (
+            <div key={h} className="flex items-center flex-1">
+              <div className="relative flex flex-col items-center flex-1">
                 <div
-                  className={`w-3 h-3 rounded-full transition-all ${
-                    i <= progress
-                      ? h >= 32 ? 'bg-danger' : h >= 24 ? 'bg-warn' : h >= 16 ? 'bg-info' : 'bg-safe'
-                      : 'bg-muted'
-                  }`}
-                  title={`Hour ${h}`}
+                  className={cn(
+                    'h-1.5 w-full rounded-full transition-all',
+                    isActive
+                      ? h >= 32 ? 'bg-clinical-danger' : h >= 24 ? 'bg-clinical-warn' : h >= 16 ? 'bg-clinical-info' : 'bg-clinical-safe'
+                      : 'bg-border'
+                  )}
                 />
-                {i < hours.length - 1 && (
-                  <div className={`w-6 h-0.5 ${i < progress ? 'bg-primary/50' : 'bg-muted'}`} />
-                )}
+                <span className={cn(
+                  'text-[10px] mt-1 vitals',
+                  isCurrent ? 'text-foreground font-semibold' : 'text-muted-foreground'
+                )}>
+                  {h}h
+                </span>
               </div>
-            ))}
-          </div>
+            </div>
+          );
+        })}
+      </div>
 
-          <div className="flex items-center gap-2">
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={handleReset}
-              className="text-xs"
-            >
-              Reset
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => setIsPlaying(!isPlaying)}
-              className="text-xs w-20"
-            >
-              {isPlaying ? 'Pause' : 'Auto-play'}
-            </Button>
-            <Button
-              size="sm"
-              onClick={handleAdvance}
-              disabled={currentHour >= maxHour || isPlaying}
-              className="text-xs"
-            >
-              Step Forward
-            </Button>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+      <div className="h-5 w-px bg-border" />
+
+      <div className="flex items-center gap-1.5">
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={handleReset}
+          className="text-xs h-7 px-2"
+        >
+          Reset
+        </Button>
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={() => setIsPlaying(!isPlaying)}
+          className="text-xs h-7 px-2 w-16"
+        >
+          {isPlaying ? 'Pause' : 'Auto'}
+        </Button>
+        <Button
+          size="sm"
+          onClick={handleAdvance}
+          disabled={currentHour >= maxHour || isPlaying}
+          className="text-xs h-7 px-3"
+        >
+          Step &rarr;
+        </Button>
+      </div>
+    </div>
   );
+}
+
+function cn(...classes: (string | boolean | undefined)[]) {
+  return classes.filter(Boolean).join(' ');
 }

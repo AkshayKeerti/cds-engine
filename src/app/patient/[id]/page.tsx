@@ -8,8 +8,6 @@ import { RiskGauge } from '@/components/patient/risk-gauge';
 import { InterventionCard } from '@/components/patient/intervention-card';
 import { SimulationPanel } from '@/components/dashboard/simulation-panel';
 import { useSimulation } from '@/hooks/use-simulation';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
 import Link from 'next/link';
 
 interface PatientData {
@@ -76,19 +74,22 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
     fetchData();
   };
 
-  if (!patient) return <div className="text-center py-12 text-muted-foreground">Loading...</div>;
+  if (!patient) {
+    return <div className="text-center py-16 text-muted-foreground text-sm">Loading patient data...</div>;
+  }
 
   const contextAlerts = patient.alerts.filter((a) => a.alertType === 'context_aware' && a.status === 'active');
   const staticAlertCount = patient.alerts.filter((a) => a.alertType === 'static').length;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <SimulationPanel onStepComplete={fetchData} />
 
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+      {/* Breadcrumb */}
+      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
         <Link href="/" className="hover:text-foreground transition-colors">Dashboard</Link>
         <span>/</span>
-        <span className="text-foreground">{patient.name}</span>
+        <span className="text-foreground font-medium">{patient.name}</span>
       </div>
 
       <PatientHeader
@@ -103,29 +104,24 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
         baselineGfr={patient.baselineGfr}
       />
 
-      {/* Static alert noise indicator */}
+      {/* Static alert noise banner */}
       {staticAlertCount > 0 && (
-        <Card className="border-warn/20 bg-warn/5">
-          <CardContent className="py-3 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Badge className="bg-warn text-black">{staticAlertCount}</Badge>
-              <span className="text-sm text-muted-foreground">
-                static drug interaction alerts fired (traditional CDS)
-              </span>
-            </div>
-            <span className="text-xs text-warn/60">These would cause alert fatigue</span>
-          </CardContent>
-        </Card>
+        <div className="flex items-center gap-3 px-4 py-2.5 bg-clinical-warn-bg border border-clinical-warn-border rounded-lg">
+          <span className="text-xs font-bold text-clinical-warn vitals">{staticAlertCount}</span>
+          <span className="text-xs text-muted-foreground">
+            static alerts fired by traditional CDS — these would typically be overridden
+          </span>
+        </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        {/* Left: Charts & Risk */}
+        <div className="lg:col-span-2 space-y-5">
           <LabTrendChart labs={patient.labs} baselineCreatinine={patient.baselineCreatinine} />
 
-          {/* Risk Gauges */}
           {riskData?.interactions && riskData.interactions.length > 0 && (
-            <div className="space-y-3">
-              <h2 className="text-sm font-semibold">Drug Interaction Risk</h2>
+            <div>
+              <h3 className="text-xs font-semibold text-foreground uppercase tracking-wider px-1 mb-2">Drug Interaction Risk</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {riskData.interactions.map((interaction, i) => (
                   <RiskGauge
@@ -141,53 +137,53 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
           )}
         </div>
 
-        <div className="space-y-6">
+        {/* Right: Meds & Interventions */}
+        <div className="space-y-5">
           <MedicationList medications={patient.medications as any} />
 
-          {/* Intervention Cards */}
           {contextAlerts.length > 0 ? (
-            <div className="space-y-3">
-              <h2 className="text-sm font-semibold text-danger">Active Interventions</h2>
-              {contextAlerts.map((alert) => {
-                const matchingIntervention = riskData?.interactions.find(
-                  (i) =>
-                    (i.drugPair.drugA === alert.drugPair[0] && i.drugPair.drugB === alert.drugPair[1]) ||
-                    (i.drugPair.drugA === alert.drugPair[1] && i.drugPair.drugB === alert.drugPair[0])
-                );
-                return (
-                  <InterventionCard
-                    key={alert.id}
-                    alertId={alert.id}
-                    severity={alert.severity}
-                    drugPair={alert.drugPair}
-                    riskScore={alert.riskScore}
-                    why={alert.mechanism}
-                    risk={matchingIntervention?.intervention.risk ?? alert.riskProjection}
-                    what={alert.recommendation}
-                    onDismiss={(id, fb) => handleAlertAction(id, fb, 'dismissed')}
-                    onConfirm={(id, fb) => handleAlertAction(id, fb, 'confirmed')}
-                  />
-                );
-              })}
+            <div>
+              <h3 className="text-xs font-semibold text-clinical-danger uppercase tracking-wider px-1 mb-2">Active Interventions</h3>
+              <div className="space-y-3">
+                {contextAlerts.map((alert) => {
+                  const matchingIntervention = riskData?.interactions.find(
+                    (i) =>
+                      (i.drugPair.drugA === alert.drugPair[0] && i.drugPair.drugB === alert.drugPair[1]) ||
+                      (i.drugPair.drugA === alert.drugPair[1] && i.drugPair.drugB === alert.drugPair[0])
+                  );
+                  return (
+                    <InterventionCard
+                      key={alert.id}
+                      alertId={alert.id}
+                      severity={alert.severity}
+                      drugPair={alert.drugPair}
+                      riskScore={alert.riskScore}
+                      why={alert.mechanism}
+                      risk={matchingIntervention?.intervention.risk ?? alert.riskProjection}
+                      what={alert.recommendation}
+                      onDismiss={(id, fb) => handleAlertAction(id, fb, 'dismissed')}
+                      onConfirm={(id, fb) => handleAlertAction(id, fb, 'confirmed')}
+                    />
+                  );
+                })}
+              </div>
             </div>
           ) : (
-            <Card className="border-safe/20">
-              <CardContent className="py-6 text-center">
-                <div className="text-safe text-xl mb-1">&#10003;</div>
-                <p className="text-sm text-safe font-medium">No interventions needed</p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Drug interactions detected but organ function supports safe clearance
-                </p>
-              </CardContent>
-            </Card>
+            <div className="bg-white border border-clinical-safe-border rounded-lg px-4 py-6 text-center">
+              <div className="w-8 h-8 rounded-full bg-clinical-safe-bg border border-clinical-safe-border flex items-center justify-center mx-auto mb-2">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5">
+                  <path d="M20 6L9 17l-5-5" />
+                </svg>
+              </div>
+              <p className="text-sm font-medium text-foreground">No interventions needed</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Organ function supports safe drug clearance</p>
+            </div>
           )}
 
           <Link href={`/patient/${id}/handover`}>
-            <Card className="hover:bg-accent/50 transition-colors cursor-pointer mt-3">
-              <CardContent className="py-3 text-center text-sm text-muted-foreground">
-                View Shift Handover Report
-              </CardContent>
-            </Card>
+            <div className="bg-white border border-border rounded-lg px-4 py-2.5 text-center text-xs text-muted-foreground hover:bg-muted transition-colors cursor-pointer mt-3">
+              View Shift Handover Report &rarr;
+            </div>
           </Link>
         </div>
       </div>

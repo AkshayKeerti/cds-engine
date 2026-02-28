@@ -27,8 +27,8 @@ export async function GET() {
       latestGfr: latestGfr?.value,
       contextAwareAlertCount: contextAlerts.length,
       staticAlertCount: staticAlerts.length,
-      criticalAlertCount: activeAlerts.filter((a) => a.severity === 'critical').length,
-      highestSeverity: activeAlerts.reduce((max, a) => {
+      criticalAlertCount: contextAlerts.filter((a) => a.severity === 'critical').length,
+      highestSeverity: contextAlerts.reduce((max, a) => {
         const order = { critical: 3, warning: 2, informational: 1, silent: 0 };
         const aOrder = order[a.severity as keyof typeof order] ?? 0;
         const maxOrder = order[max as keyof typeof order] ?? 0;

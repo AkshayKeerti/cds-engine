@@ -1,9 +1,8 @@
 'use client';
 
 import { useEffect, useState, use } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
+import { cn } from '@/lib/utils';
 import type { HandoverSummary } from '@/lib/types';
 
 export default function HandoverPage({ params }: { params: Promise<{ id: string }> }) {
@@ -14,121 +13,123 @@ export default function HandoverPage({ params }: { params: Promise<{ id: string 
     fetch(`/api/handover?patientId=${id}`).then((r) => r.json()).then(setSummary);
   }, [id]);
 
-  if (!summary) return <div className="text-center py-12 text-muted-foreground">Loading...</div>;
+  if (!summary) return <div className="text-center py-16 text-sm text-muted-foreground">Loading...</div>;
+
+  const isCritical = summary.riskSummary.startsWith('CRITICAL');
+  const isWarning = summary.riskSummary.startsWith('WARNING');
 
   return (
-    <div className="space-y-6 max-w-3xl mx-auto">
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+    <div className="max-w-2xl mx-auto space-y-5 py-2">
+      {/* Breadcrumb */}
+      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
         <Link href="/" className="hover:text-foreground transition-colors">Dashboard</Link>
         <span>/</span>
         <Link href={`/patient/${id}`} className="hover:text-foreground transition-colors">Patient</Link>
         <span>/</span>
-        <span className="text-foreground">Shift Handover</span>
+        <span className="text-foreground font-medium">Handover</span>
       </div>
 
       <div>
-        <h1 className="text-xl font-bold mb-1">Shift Handover Report</h1>
-        <p className="text-sm text-muted-foreground">
-          Generated {new Date(summary.generatedAt).toLocaleString()} | {summary.period}
+        <h1 className="text-base font-bold text-foreground">Shift Handover Report</h1>
+        <p className="text-xs text-muted-foreground mt-0.5">
+          Generated {new Date(summary.generatedAt).toLocaleString()} &middot; {summary.period}
         </p>
       </div>
 
-      {/* Risk Summary */}
-      <Card className={summary.riskSummary.startsWith('CRITICAL') ? 'border-danger/50' : summary.riskSummary.startsWith('WARNING') ? 'border-warn/30' : 'border-safe/20'}>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium">Risk Summary</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm">{summary.riskSummary}</p>
-        </CardContent>
-      </Card>
+      {/* Risk summary */}
+      <div className={cn(
+        'border rounded-lg px-4 py-3',
+        isCritical ? 'bg-clinical-danger-bg border-clinical-danger-border' :
+        isWarning ? 'bg-clinical-warn-bg border-clinical-warn-border' :
+        'bg-clinical-safe-bg border-clinical-safe-border'
+      )}>
+        <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Risk Summary</div>
+        <p className="text-sm text-foreground">{summary.riskSummary}</p>
+      </div>
 
-      {/* Lab Trends */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium">Lab Trends</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {summary.labTrends.map((lt) => (
-              <div key={lt.labType} className="flex items-center justify-between p-2 rounded-md bg-secondary/30">
-                <div>
-                  <span className="text-xs text-muted-foreground uppercase">{lt.labType}</span>
-                  <div className="text-sm font-mono font-medium">{lt.latestValue} {lt.unit}</div>
-                </div>
-                <Badge variant="secondary" className={
-                  lt.direction === 'rising' ? 'text-danger' : lt.direction === 'falling' ? 'text-safe' : ''
-                }>
-                  {lt.direction === 'rising' ? '↑' : lt.direction === 'falling' ? '↓' : '→'} {lt.direction}
-                </Badge>
+      {/* Lab trends */}
+      <div className="bg-white border border-border rounded-lg">
+        <div className="px-4 py-2.5 border-b border-border">
+          <span className="text-xs font-semibold text-foreground uppercase tracking-wider">Lab Trends</span>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-px bg-border">
+          {summary.labTrends.map((lt) => (
+            <div key={lt.labType} className="bg-white px-3.5 py-2.5">
+              <div className="text-[10px] text-muted-foreground uppercase tracking-wider">{lt.labType}</div>
+              <div className="flex items-baseline gap-1.5 mt-0.5">
+                <span className="text-sm font-semibold vitals">{lt.latestValue}</span>
+                <span className="text-[10px] text-muted-foreground">{lt.unit}</span>
+                <span className={cn(
+                  'text-xs font-medium ml-auto',
+                  lt.direction === 'rising' ? 'text-clinical-danger' : lt.direction === 'falling' ? 'text-clinical-safe' : 'text-muted-foreground'
+                )}>
+                  {lt.direction === 'rising' ? '↑' : lt.direction === 'falling' ? '↓' : '→'}
+                </span>
               </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+            </div>
+          ))}
+        </div>
+      </div>
 
-      {/* Active Medications */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium">Active Medications ({summary.activeMedications.length})</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-1">
-            {summary.activeMedications.map((med) => (
-              <div key={med.id} className="flex items-center justify-between py-1 text-sm">
-                <span>{med.drugName} {med.dose} {med.route}</span>
-                <span className="text-muted-foreground">{med.frequency}</span>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      {/* Medications */}
+      <div className="bg-white border border-border rounded-lg">
+        <div className="px-4 py-2.5 border-b border-border">
+          <span className="text-xs font-semibold text-foreground uppercase tracking-wider">
+            Active Medications ({summary.activeMedications.length})
+          </span>
+        </div>
+        <div className="divide-y divide-border">
+          {summary.activeMedications.map((med) => (
+            <div key={med.id} className="flex items-center justify-between px-4 py-2 text-xs">
+              <span className="text-foreground">{med.drugName} {med.dose} {med.route}</span>
+              <span className="text-muted-foreground">{med.frequency}</span>
+            </div>
+          ))}
+        </div>
+      </div>
 
       {/* Recommendations */}
       {summary.recommendations.length > 0 && (
-        <Card className="border-warn/30">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Recommendations</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-2">
-              {summary.recommendations.map((rec, i) => (
-                <li key={i} className="text-sm text-muted-foreground flex gap-2">
-                  <span className="text-warn flex-shrink-0">•</span>
-                  {rec}
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
+        <div className="bg-clinical-warn-bg border border-clinical-warn-border rounded-lg">
+          <div className="px-4 py-2.5 border-b border-clinical-warn-border">
+            <span className="text-xs font-semibold text-foreground uppercase tracking-wider">Recommendations</span>
+          </div>
+          <div className="px-4 py-3 space-y-2">
+            {summary.recommendations.map((rec, i) => (
+              <div key={i} className="flex gap-2 text-xs text-muted-foreground">
+                <span className="text-clinical-warn flex-shrink-0 font-bold">{i + 1}.</span>
+                <span className="leading-relaxed">{rec}</span>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
 
-      {/* Active Alerts */}
+      {/* Active alerts */}
       {summary.activeAlerts.length > 0 && (
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Active Alerts ({summary.activeAlerts.length})</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              {summary.activeAlerts.map((alert) => (
-                <div key={alert.id} className="flex items-center gap-2 py-1 text-sm">
-                  <Badge className={
-                    alert.severity === 'critical' ? 'bg-danger text-white' :
-                    alert.severity === 'warning' ? 'bg-warn text-black' :
-                    'bg-info text-white'
-                  }>
-                    {alert.severity.toUpperCase()}
-                  </Badge>
-                  <span className="flex-1">{alert.title}</span>
-                  <span className="text-muted-foreground font-mono text-xs">
-                    {(alert.riskScore * 100).toFixed(0)}%
-                  </span>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        <div className="bg-white border border-border rounded-lg">
+          <div className="px-4 py-2.5 border-b border-border">
+            <span className="text-xs font-semibold text-foreground uppercase tracking-wider">
+              Active Alerts ({summary.activeAlerts.length})
+            </span>
+          </div>
+          <div className="divide-y divide-border">
+            {summary.activeAlerts.map((alert) => (
+              <div key={alert.id} className="flex items-center gap-2 px-4 py-2 text-xs">
+                <span className={cn(
+                  'text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded',
+                  alert.severity === 'critical' ? 'text-clinical-danger bg-clinical-danger-bg' :
+                  alert.severity === 'warning' ? 'text-clinical-warn bg-clinical-warn-bg' :
+                  'text-clinical-info bg-clinical-info-bg'
+                )}>
+                  {alert.severity}
+                </span>
+                <span className="flex-1 text-foreground">{alert.title}</span>
+                <span className="text-muted-foreground vitals">{(alert.riskScore * 100).toFixed(0)}%</span>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
     </div>
   );
