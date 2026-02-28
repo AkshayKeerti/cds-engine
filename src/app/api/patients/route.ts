@@ -34,6 +34,11 @@ export async function GET() {
         const maxOrder = order[max as keyof typeof order] ?? 0;
         return aOrder > maxOrder ? a.severity : max;
       }, 'silent' as string),
+      // Include actual alert objects so dashboard can derive alert feed from same data source
+      activeContextAlerts: contextAlerts.map((a) => ({
+        ...a,
+        drugPair: JSON.parse(a.drugPair),
+      })),
     };
   });
 
