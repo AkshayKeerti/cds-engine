@@ -81,6 +81,29 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
   const contextAlerts = patient.alerts.filter((a) => a.alertType === 'context_aware' && a.status === 'active');
   const staticAlertCount = patient.alerts.filter((a) => a.alertType === 'static').length;
 
+  // Build intervention list from live risk data (not just stored alerts)
+  // This ensures intervention cards appear whenever risk is elevated, even if alert store hasn't synced
+  const activeInterventions = riskData?.interactions
+    ?.filter((i) => i.riskScore.severity === 'critical' || i.riskScore.severity === 'warning')
+    ?.map((interaction) => {
+      // Try to find a matching stored alert for the alert ID (needed for dismiss/confirm)
+      const matchingAlert = contextAlerts.find(
+        (a) =>
+          (a.drugPair[0] === interaction.drugPair.drugA && a.drugPair[1] === interaction.drugPair.drugB) ||
+          (a.drugPair[0] === interaction.drugPair.drugB && a.drugPair[1] === interaction.drugPair.drugA)
+      );
+      return {
+        alertId: matchingAlert?.id ?? `live-${interaction.drugPair.drugA}-${interaction.drugPair.drugB}`,
+        severity: interaction.riskScore.severity,
+        drugPair: [interaction.drugPair.drugA, interaction.drugPair.drugB] as [string, string],
+        riskScore: interaction.riskScore.score,
+        why: matchingAlert?.mechanism ?? interaction.intervention.why,
+        risk: interaction.intervention.risk,
+        what: matchingAlert?.recommendation ?? interaction.intervention.what,
+        hasStoredAlert: !!matchingAlert,
+      };
+    }) ?? [];
+
   return (
     <div className="space-y-5">
       <SimulationPanel onStepComplete={fetchData} />
@@ -141,31 +164,24 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
         <div className="space-y-5">
           <MedicationList medications={patient.medications as any} />
 
-          {contextAlerts.length > 0 ? (
+          {activeInterventions.length > 0 ? (
             <div>
               <h3 className="text-xs font-semibold text-clinical-danger uppercase tracking-wider px-1 mb-2">Active Interventions</h3>
               <div className="space-y-3">
-                {contextAlerts.map((alert) => {
-                  const matchingIntervention = riskData?.interactions.find(
-                    (i) =>
-                      (i.drugPair.drugA === alert.drugPair[0] && i.drugPair.drugB === alert.drugPair[1]) ||
-                      (i.drugPair.drugA === alert.drugPair[1] && i.drugPair.drugB === alert.drugPair[0])
-                  );
-                  return (
-                    <InterventionCard
-                      key={alert.id}
-                      alertId={alert.id}
-                      severity={alert.severity}
-                      drugPair={alert.drugPair}
-                      riskScore={alert.riskScore}
-                      why={alert.mechanism}
-                      risk={matchingIntervention?.intervention.risk ?? alert.riskProjection}
-                      what={alert.recommendation}
-                      onDismiss={(id, fb) => handleAlertAction(id, fb, 'dismissed')}
-                      onConfirm={(id, fb) => handleAlertAction(id, fb, 'confirmed')}
-                    />
-                  );
-                })}
+                {activeInterventions.map((item) => (
+                  <InterventionCard
+                    key={item.alertId}
+                    alertId={item.alertId}
+                    severity={item.severity}
+                    drugPair={item.drugPair}
+                    riskScore={item.riskScore}
+                    why={item.why}
+                    risk={item.risk}
+                    what={item.what}
+                    onDismiss={item.hasStoredAlert ? (id, fb) => handleAlertAction(id, fb, 'dismissed') : undefined}
+                    onConfirm={item.hasStoredAlert ? (id, fb) => handleAlertAction(id, fb, 'confirmed') : undefined}
+                  />
+                ))}
               </div>
             </div>
           ) : (
