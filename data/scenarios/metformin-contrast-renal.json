@@ -1,0 +1,64 @@
+{
+  "id": "scenario-metf-cntr",
+  "name": "Metformin + IV Contrast — Lactic Acidosis Risk",
+  "patientId": "patient-2",
+  "description": "72-year-old female with type 2 diabetes on Metformin, admitted for CT angiography with IV contrast. Mild baseline renal impairment (CKD Stage 2). Post-contrast nephropathy develops, threatening Metformin accumulation and lactic acidosis.",
+  "drugs": ["Metformin", "IV Contrast"],
+  "steps": [
+    {
+      "hour": 0,
+      "labs": [
+        { "labType": "creatinine", "value": 1.3, "unit": "mg/dL" },
+        { "labType": "gfr", "value": 68, "unit": "mL/min" },
+        { "labType": "potassium", "value": 4.0, "unit": "mEq/L" }
+      ],
+      "expectedScore": 0.18,
+      "expectedSeverity": "silent",
+      "narrative": "Pre-contrast baseline. Mild CKD Stage 2. Static system flags Metformin-contrast interaction. Context-aware: low risk, mild baseline impairment is stable."
+    },
+    {
+      "hour": 4,
+      "labs": [
+        { "labType": "creatinine", "value": 1.3, "unit": "mg/dL" },
+        { "labType": "gfr", "value": 67, "unit": "mL/min" },
+        { "labType": "potassium", "value": 4.1, "unit": "mEq/L" }
+      ],
+      "expectedScore": 0.19,
+      "expectedSeverity": "silent",
+      "narrative": "Contrast administered 2 hours ago. No change yet. Monitoring."
+    },
+    {
+      "hour": 12,
+      "labs": [
+        { "labType": "creatinine", "value": 1.5, "unit": "mg/dL" },
+        { "labType": "gfr", "value": 55, "unit": "mL/min" },
+        { "labType": "potassium", "value": 4.2, "unit": "mEq/L" }
+      ],
+      "expectedScore": 0.35,
+      "expectedSeverity": "informational",
+      "narrative": "Creatinine rising post-contrast. Early contrast-induced nephropathy. Context-aware notes informational alert."
+    },
+    {
+      "hour": 24,
+      "labs": [
+        { "labType": "creatinine", "value": 2.0, "unit": "mg/dL" },
+        { "labType": "gfr", "value": 38, "unit": "mL/min" },
+        { "labType": "potassium", "value": 4.5, "unit": "mEq/L" }
+      ],
+      "expectedScore": 0.62,
+      "expectedSeverity": "warning",
+      "narrative": "Significant contrast nephropathy. Metformin clearance compromised. WARNING — hold Metformin, check lactate."
+    },
+    {
+      "hour": 36,
+      "labs": [
+        { "labType": "creatinine", "value": 2.6, "unit": "mg/dL" },
+        { "labType": "gfr", "value": 28, "unit": "mL/min" },
+        { "labType": "potassium", "value": 4.8, "unit": "mEq/L" }
+      ],
+      "expectedScore": 0.81,
+      "expectedSeverity": "critical",
+      "narrative": "CRITICAL. GFR <30. High risk of metformin-associated lactic acidosis. Immediate intervention required."
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "id": "scenario-nsaid-acei",
+  "name": "Ketorolac + Lisinopril — Triple Whammy Nephrotoxicity",
+  "patientId": "patient-3",
+  "description": "55-year-old male with hypertension (on Lisinopril) admitted post-surgery. Started on Ketorolac for pain management. Progressive renal decline from dual hemodynamic insult to glomerular perfusion.",
+  "drugs": ["Ketorolac", "Lisinopril"],
+  "steps": [
+    {
+      "hour": 0,
+      "labs": [
+        { "labType": "creatinine", "value": 1.1, "unit": "mg/dL" },
+        { "labType": "gfr", "value": 82, "unit": "mL/min" },
+        { "labType": "potassium", "value": 4.4, "unit": "mEq/L" }
+      ],
+      "expectedScore": 0.12,
+      "expectedSeverity": "silent",
+      "narrative": "Post-op day 0. Ketorolac started for pain. Lisinopril continued from home meds. Static system flags. Context-aware: silent, renal function adequate."
+    },
+    {
+      "hour": 12,
+      "labs": [
+        { "labType": "creatinine", "value": 1.3, "unit": "mg/dL" },
+        { "labType": "gfr", "value": 72, "unit": "mL/min" },
+        { "labType": "potassium", "value": 4.7, "unit": "mEq/L" }
+      ],
+      "expectedScore": 0.28,
+      "expectedSeverity": "informational",
+      "narrative": "Early renal impact. Creatinine trending up with potassium. Informational note."
+    },
+    {
+      "hour": 24,
+      "labs": [
+        { "labType": "creatinine", "value": 1.8, "unit": "mg/dL" },
+        { "labType": "gfr", "value": 52, "unit": "mL/min" },
+        { "labType": "potassium", "value": 5.1, "unit": "mEq/L" }
+      ],
+      "expectedScore": 0.55,
+      "expectedSeverity": "warning",
+      "narrative": "GFR dropped significantly. Potassium rising (both drugs impair K+ excretion). WARNING alert."
+    },
+    {
+      "hour": 36,
+      "labs": [
+        { "labType": "creatinine", "value": 2.5, "unit": "mg/dL" },
+        { "labType": "gfr", "value": 35, "unit": "mL/min" },
+        { "labType": "potassium", "value": 5.6, "unit": "mEq/L" }
+      ],
+      "expectedScore": 0.75,
+      "expectedSeverity": "critical",
+      "narrative": "CRITICAL. Pre-renal AKI from dual hemodynamic insult. Hyperkalemia risk. Discontinue Ketorolac immediately, switch to Acetaminophen."
+    }
+  ]
+}

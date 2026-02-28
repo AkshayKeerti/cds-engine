@@ -1,0 +1,67 @@
+[
+  {
+    "drugA": "Vancomycin",
+    "drugB": "Gentamicin",
+    "drugCodeA": "VANC",
+    "drugCodeB": "GENT",
+    "clearanceRoute": "renal",
+    "toxicityMultiplier": 1.8,
+    "mechanism": "Both drugs are cleared renally and are directly nephrotoxic. Combined use causes synergistic tubular damage, accelerating acute kidney injury. As renal function declines, both drugs accumulate — creating a positive feedback loop of worsening toxicity.",
+    "riskDescription": "Estimated plasma concentrations exceed therapeutic range. With current GFR decline, Vancomycin trough projected to reach toxic levels (>20 mcg/mL) within 12 hours. Gentamicin accumulation compounds nephrotoxic injury.",
+    "recommendation": "Consider switching Gentamicin to a less nephrotoxic alternative (e.g., Ceftriaxone if susceptibilities allow). If both must continue, extend dosing intervals and obtain therapeutic drug monitoring (TDM) for Vancomycin trough levels. Target Vancomycin AUC/MIC ratio with pharmacy consultation.",
+    "alternativeDrug": "Ceftriaxone",
+    "monitoringParams": ["creatinine", "bun", "gfr", "potassium"]
+  },
+  {
+    "drugA": "Metformin",
+    "drugB": "IV Contrast",
+    "drugCodeA": "METF",
+    "drugCodeB": "CNTR",
+    "clearanceRoute": "renal",
+    "toxicityMultiplier": 1.6,
+    "mechanism": "IV contrast media can cause contrast-induced nephropathy (CIN), reducing renal clearance of Metformin. Accumulated Metformin inhibits hepatic gluconeogenesis and increases lactate production, risking life-threatening lactic acidosis (mortality 30-50%).",
+    "riskDescription": "Post-contrast renal function decline detected. Metformin clearance reduced — lactate levels may be rising. Risk of metformin-associated lactic acidosis (MALA) increases significantly with GFR below 30.",
+    "recommendation": "Hold Metformin for 48 hours post-contrast administration. Monitor serum creatinine at 24h and 48h. Check serum lactate if symptoms develop (nausea, abdominal pain, tachypnea). Resume Metformin only when renal function returns to baseline.",
+    "alternativeDrug": "Insulin (short-term)",
+    "monitoringParams": ["creatinine", "gfr"]
+  },
+  {
+    "drugA": "Ketorolac",
+    "drugB": "Lisinopril",
+    "drugCodeA": "KETO",
+    "drugCodeB": "LISI",
+    "clearanceRoute": "renal",
+    "toxicityMultiplier": 1.5,
+    "mechanism": "NSAIDs (Ketorolac) inhibit prostaglandin-mediated afferent arteriolar vasodilation while ACE inhibitors (Lisinopril) reduce efferent arteriolar tone. Together they critically reduce glomerular perfusion pressure, causing acute pre-renal kidney injury ('triple whammy' when combined with diuretics).",
+    "riskDescription": "Glomerular filtration pressure compromised by dual hemodynamic insult. GFR declining with risk of acute pre-renal failure. Potassium retention from both drugs increases hyperkalemia risk.",
+    "recommendation": "Discontinue Ketorolac — switch to Acetaminophen (Paracetamol) for analgesia. If NSAID required, use lowest dose for shortest duration. Monitor potassium closely. Consider holding Lisinopril if GFR drops below 45.",
+    "alternativeDrug": "Acetaminophen",
+    "monitoringParams": ["creatinine", "gfr", "potassium"]
+  },
+  {
+    "drugA": "Amphotericin B",
+    "drugB": "Cyclosporine",
+    "drugCodeA": "AMPH",
+    "drugCodeB": "CYCL",
+    "clearanceRoute": "renal",
+    "toxicityMultiplier": 1.9,
+    "mechanism": "Amphotericin B causes direct renal tubular toxicity and vasoconstriction of afferent arterioles. Cyclosporine causes vasoconstriction of both afferent and efferent arterioles. Combined renal vasoconstriction and tubular damage dramatically accelerates nephrotoxicity in transplant patients.",
+    "riskDescription": "Dual nephrotoxic insult detected in transplant patient. Creatinine rising indicates progressive renal injury. Risk of graft dysfunction if not addressed. Cyclosporine levels may be supratherapeutic due to reduced clearance.",
+    "recommendation": "Consider switching to Liposomal Amphotericin B (AmBisome) which has lower nephrotoxicity. Check Cyclosporine trough levels — dose reduction likely needed. Ensure aggressive IV hydration (NS at 150 mL/hr). Monitor magnesium and potassium (Amphotericin B causes wasting).",
+    "alternativeDrug": "Liposomal Amphotericin B",
+    "monitoringParams": ["creatinine", "bun", "gfr", "potassium"]
+  },
+  {
+    "drugA": "Lithium",
+    "drugB": "Ibuprofen",
+    "drugCodeA": "LITH",
+    "drugCodeB": "IBUP",
+    "clearanceRoute": "renal",
+    "toxicityMultiplier": 1.7,
+    "mechanism": "NSAIDs (Ibuprofen) reduce renal prostaglandin synthesis, decreasing renal blood flow and GFR. This directly impairs lithium clearance (75% renally excreted). Lithium has a narrow therapeutic index (0.6-1.2 mEq/L) — even modest accumulation causes toxicity (tremor, confusion, seizures, cardiac arrhythmia).",
+    "riskDescription": "NSAID-induced reduction in renal lithium clearance detected. With current GFR trend, lithium levels projected to exceed toxic range (>1.5 mEq/L) within 24 hours. Risk of neurotoxicity and cardiac conduction abnormalities.",
+    "recommendation": "Discontinue Ibuprofen immediately. Switch to Acetaminophen for pain management. Obtain STAT lithium level. If lithium >1.5 mEq/L, hold lithium dose and repeat level in 6 hours. Ensure adequate hydration. Avoid all NSAIDs in lithium-treated patients.",
+    "alternativeDrug": "Acetaminophen",
+    "monitoringParams": ["creatinine", "gfr"]
+  }
+]

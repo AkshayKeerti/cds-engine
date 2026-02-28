@@ -1,0 +1,81 @@
+{
+  "id": "scenario-vanc-gent",
+  "name": "Vancomycin + Gentamicin — Acute Kidney Injury",
+  "patientId": "patient-1",
+  "description": "68-year-old male admitted to ICU with sepsis. Started on Vancomycin and Gentamicin for empiric broad-spectrum coverage. Baseline renal function normal but deteriorates over 40 hours as nephrotoxic drugs accumulate.",
+  "drugs": ["Vancomycin", "Gentamicin"],
+  "steps": [
+    {
+      "hour": 0,
+      "labs": [
+        { "labType": "creatinine", "value": 1.0, "unit": "mg/dL" },
+        { "labType": "bun", "value": 18, "unit": "mg/dL" },
+        { "labType": "gfr", "value": 95, "unit": "mL/min" },
+        { "labType": "potassium", "value": 4.2, "unit": "mEq/L" }
+      ],
+      "expectedScore": 0.1,
+      "expectedSeverity": "silent",
+      "narrative": "Admission. Labs normal. Static CDS fires 5 alerts for Vancomycin-Gentamicin interaction. Context-aware system: silent — organ function supports clearance of both drugs."
+    },
+    {
+      "hour": 8,
+      "labs": [
+        { "labType": "creatinine", "value": 1.1, "unit": "mg/dL" },
+        { "labType": "bun", "value": 20, "unit": "mg/dL" },
+        { "labType": "gfr", "value": 88, "unit": "mL/min" },
+        { "labType": "potassium", "value": 4.3, "unit": "mEq/L" }
+      ],
+      "expectedScore": 0.12,
+      "expectedSeverity": "silent",
+      "narrative": "8 hours post-admission. Minimal change in renal markers. Static system fires again on med reconciliation. Context-aware: still silent."
+    },
+    {
+      "hour": 16,
+      "labs": [
+        { "labType": "creatinine", "value": 1.3, "unit": "mg/dL" },
+        { "labType": "bun", "value": 25, "unit": "mg/dL" },
+        { "labType": "gfr", "value": 74, "unit": "mL/min" },
+        { "labType": "potassium", "value": 4.5, "unit": "mEq/L" }
+      ],
+      "expectedScore": 0.25,
+      "expectedSeverity": "informational",
+      "narrative": "Creatinine creeping up. GFR declining. Context-aware system notes informational trend — 'Renal function trending down, monitoring recommended.' Not an interruption."
+    },
+    {
+      "hour": 24,
+      "labs": [
+        { "labType": "creatinine", "value": 1.7, "unit": "mg/dL" },
+        { "labType": "bun", "value": 34, "unit": "mg/dL" },
+        { "labType": "gfr", "value": 62, "unit": "mL/min" },
+        { "labType": "potassium", "value": 4.8, "unit": "mEq/L" }
+      ],
+      "expectedScore": 0.48,
+      "expectedSeverity": "warning",
+      "narrative": "Significant renal decline. Creatinine 70% above baseline. Context-aware system elevates to WARNING — displayed as a non-interruptive card in the patient chart. Clinician can review at next rounding."
+    },
+    {
+      "hour": 32,
+      "labs": [
+        { "labType": "creatinine", "value": 2.4, "unit": "mg/dL" },
+        { "labType": "bun", "value": 48, "unit": "mg/dL" },
+        { "labType": "gfr", "value": 38, "unit": "mL/min" },
+        { "labType": "potassium", "value": 5.3, "unit": "mEq/L" }
+      ],
+      "expectedScore": 0.78,
+      "expectedSeverity": "critical",
+      "narrative": "CRITICAL. Creatinine 2.4× baseline. GFR dropped 60%. Both drugs accumulating beyond therapeutic range. Context-aware system fires CRITICAL alert with full intervention card: mechanism, projected trajectory, and specific recommendation to switch Gentamicin to Ceftriaxone."
+    },
+    {
+      "hour": 40,
+      "labs": [
+        { "labType": "creatinine", "value": 3.1, "unit": "mg/dL" },
+        { "labType": "bun", "value": 62, "unit": "mg/dL" },
+        { "labType": "gfr", "value": 28, "unit": "mL/min" },
+        { "labType": "potassium", "value": 5.8, "unit": "mEq/L" }
+      ],
+      "expectedScore": 0.92,
+      "expectedSeverity": "critical",
+      "narrative": "Without intervention: severe AKI. GFR <30 indicates Stage 3 AKI. Hyperkalemia risk (K+ 5.8). This timeline shows what happens when static alerts are overridden and context-aware alerts are not available."
+    }
+  ]
+}
